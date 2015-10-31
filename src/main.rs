@@ -24,28 +24,34 @@ impl fmt::Debug for Task {
 }
 
 struct Calendar {
-    tasks: HashMap<u64, Vec<Task>>,
+    days: HashMap<u64, Vec<Task>>,
 }
 
 impl Calendar {
     fn new() -> Calendar {
         Calendar {
-            tasks: HashMap::new(),
+            days: HashMap::new(),
         }
     }
 
     fn add_task(&mut self, date: u64, task: Task) {
-        if self.tasks.get(&date).is_none() {
+        if self.days.get(&date).is_none() {
             let mut tmp_vec = Vec::new();
             tmp_vec.push(task);
-            self.tasks.insert(date, tmp_vec);
+            self.days.insert(date, tmp_vec);
         } else {
-            self.tasks.get_mut(&date).unwrap().push(task);
+            self.days.get_mut(&date).unwrap().push(task);
         }
     }
 
     fn check_tasks(&self, date: u64) -> &Vec<Task> {
-        self.tasks.get(&date).unwrap()
+        self.days.get(&date).unwrap()
+    }
+}
+
+impl fmt::Debug for Calendar {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_map().entries(self.days.iter()).finish()
     }
 }
 
@@ -96,13 +102,14 @@ fn time_to_iso(time: &str) -> u64 {
     time_tmp.parse::<u64>().unwrap()
 }
 
-fn display_calendar() {
-    let mut cal = Calendar::new();
-    cal.add_task(date_fmt("October 30th, 2015"), Task::new(time_to_iso("10:50"), String::from("Go Fish!")));
-    cal.add_task(date_fmt("October 30th, 2015"), Task::new(time_to_iso("11:00"), String::from("Eat Fish!")));
-    println!("{:?}", cal.check_tasks(date_fmt("October 30th, 2015")));
+fn display_calendar(cal: Calendar) {
+    println!("{:?}", cal);
 }
 
 fn main() {
-    display_calendar();
+    let mut cal = Calendar::new();
+    cal.add_task(date_fmt("October 30th, 2015"), Task::new(time_to_iso("10:50"), String::from("Go Fish!")));
+    cal.add_task(date_fmt("October 30th, 2015"), Task::new(time_to_iso("11:00"), String::from("Eat Fish!")));
+    cal.add_task(date_fmt("October 31th, 2015"), Task::new(time_to_iso("23:00"), String::from("Slurp Noodles!")));
+    display_calendar(cal);
 }
